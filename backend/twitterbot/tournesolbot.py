@@ -1,6 +1,9 @@
 import random
 import re
+from pathlib import Path
 
+from tournesol.utils.contributors import get_top_public_contributors_last_month
+import matplotlib.pyplot as plt
 from core.utils.time import time_ago
 from tournesol.models import Entity
 from tournesol.models.criteria import CriteriaLocale
@@ -46,7 +49,9 @@ def prepare_tweet(video):
     # Get two best criteria and criteria dict name
     crit1, crit2 = get_best_criteria(video, 2)
     crit_dict = dict(
-        CriteriaLocale.objects.filter(language=language).values_list("criteria__name", "label")
+        CriteriaLocale.objects.filter(language=language).values_list(
+            "criteria__name", "label"
+        )
     )
 
     # Replace "@" by a smaller "@" to avoid false mentions in the tweet
@@ -98,7 +103,9 @@ def get_video_recommendations(language):
     # Filter videos with some quality criteria
     tweetable_videos = Entity.objects.filter(
         add_time__lte=time_ago(days=settings.DAYS_TOO_RECENT),
-        metadata__publication_date__gte=time_ago(days=settings.DAYS_TOO_OLD).isoformat(),
+        metadata__publication_date__gte=time_ago(
+            days=settings.DAYS_TOO_OLD
+        ).isoformat(),
         rating_n_contributors__gt=settings.MIN_NB_CONTRIBUTORS,
         rating_n_ratings__gte=settings.MIN_NB_RATINGS,
         metadata__language=language,
@@ -165,3 +172,9 @@ def tweet_video_recommendation(bot_name, assumeyes=False):
         tweet_id=resp.id,
         bot_name=bot_name,
     )
+
+
+def generate_top_contributor_figure() -> Path:
+    """Generate a figure with the top contributor of each video."""
+
+    pass
